@@ -80,7 +80,13 @@ class FileRepository {
     }
     for (var i = 0; i < contentLineByLine!.length; i++) {
       if (contentLineByLine[i].contains('PRODUCT_BUNDLE_IDENTIFIER')) {
-        contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId;';
+        if (contentLineByLine[i].contains('.dev')) {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.dev;';
+        } else if (contentLineByLine[i].contains('.staging')) {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.staging;';
+        } else {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId;';
+        }
       }
     }
     var writtenFile = await writeFile(
