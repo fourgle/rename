@@ -65,6 +65,7 @@ class FileRepository {
         return (contentLineByLine[i] as String).split('=').last.trim();
       }
     }
+    return null;
   }
 
   Future<File?> changeIosBundleId({String? bundleId}) async {
@@ -80,13 +81,19 @@ class FileRepository {
     }
     for (var i = 0; i < contentLineByLine!.length; i++) {
       if (contentLineByLine[i].contains('PRODUCT_BUNDLE_IDENTIFIER')) {
-        if (contentLineByLine[i].contains('.dev')) {
-          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.dev;';
-        } else if (contentLineByLine[i].contains('.staging')) {
-          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.staging;';
-        } else {
-          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId;';
+        final line = contentLineByLine[i] as String;
+        final pattern = "PRODUCT_BUNDLE_IDENTIFIER = ";
+        final index = line.indexOf(pattern) + pattern.length;
+        final semiColon = line.indexOf(";");
+
+        final value = line.substring(index, semiColon);
+        final parts = value.split(".");
+        if (parts.length < 3) {
+          continue;
         }
+        final oldPackageName = parts.getRange(0, 3).join(".");
+        contentLineByLine[i] =
+            line.replaceFirst(oldPackageName, bundleId ?? '');
       }
     }
     var writtenFile = await writeFile(
@@ -113,6 +120,7 @@ class FileRepository {
         return (contentLineByLine[i] as String).split('=').last.trim();
       }
     }
+    return null;
   }
 
   Future<File?> changeMacOsBundleId({String? bundleId}) async {
@@ -155,6 +163,7 @@ class FileRepository {
         return (contentLineByLine[i] as String).split('"').elementAt(1).trim();
       }
     }
+    return null;
   }
 
   Future<File?> changeAndroidBundleId({String? bundleId}) async {
@@ -199,6 +208,7 @@ class FileRepository {
         ;
       }
     }
+    return null;
   }
 
   Future<File?> changeLinuxBundleId({String? bundleId}) async {
@@ -243,7 +253,7 @@ class FileRepository {
       }
     }
 
-    for (var i = 0; i < contentLineByLine!.length; i++) {
+    for (var i = 0; i < contentLineByLine.length; i++) {
       if (contentLineByLine[i].contains('<key>CFBundleDisplayName</key>')) {
         contentLineByLine[i + 1] = '\t<string>$appName</string>\r';
         break;
@@ -370,6 +380,7 @@ class FileRepository {
         return (contentLineByLine[i + 1] as String).trim().substring(5, 5);
       }
     }
+    return null;
   }
 
   // ignore: missing_return
@@ -382,13 +393,16 @@ class FileRepository {
         return (contentLineByLine[i] as String).split('"')[1];
       }
     }
+    return null;
   }
 
   bool checkFileExists(List? fileContent) {
     return fileContent == null || fileContent.isEmpty;
   }
 
-  Future<String?> getWebAppName() async {}
+  Future<String?> getWebAppName() async {
+    return null;
+  }
 
   Future<File?> changeWebAppName(String? appName) async {
     List? contentLineByLine = await readFileAsLineByline(
@@ -416,7 +430,9 @@ class FileRepository {
     return writtenFile;
   }
 
-  Future<String?> getWindowsAppName() async {}
+  Future<String?> getWindowsAppName() async {
+    return null;
+  }
 
   Future<void> changeWindowsAppName(String? appName) async {
     await changeWindowsCppName(appName);
@@ -437,13 +453,16 @@ class FileRepository {
     }
     for (var i = 0; i < contentLineByLine!.length; i++) {
       if (contentLineByLine[i].contains('window.CreateAndShow')) {
-        contentLineByLine[i] =
-            contentLineByLine[i].replaceAllMapped(RegExp(r'CreateAndShow\(L"([^"]+")'), (match) { return 'CreateAndShow(L"$appName"'; });
+        contentLineByLine[i] = contentLineByLine[i]
+            .replaceAllMapped(RegExp(r'CreateAndShow\(L"([^"]+")'), (match) {
+          return 'CreateAndShow(L"$appName"';
+        });
         break;
-      }
-      else if (contentLineByLine[i].contains('window.Create')) {
-        contentLineByLine[i] =
-            contentLineByLine[i].replaceAllMapped(RegExp(r'Create\(L"([^"]+")'), (match) { return 'Create(L"$appName"'; });
+      } else if (contentLineByLine[i].contains('window.Create')) {
+        contentLineByLine[i] = contentLineByLine[i]
+            .replaceAllMapped(RegExp(r'Create\(L"([^"]+")'), (match) {
+          return 'Create(L"$appName"';
+        });
         break;
       }
     }
@@ -466,13 +485,14 @@ class FileRepository {
     }
     for (var i = 0; i < contentLineByLine!.length; i++) {
       if (contentLineByLine[i].contains('VALUE "InternalName"')) {
-        contentLineByLine[i] = '            VALUE "InternalName", "$appName" "\\0"';
-      }
-      else if (contentLineByLine[i].contains('VALUE "FileDescription"')) {
-        contentLineByLine[i] = '            VALUE "FileDescription", "$appName" "\\0"';
-      }
-      else if (contentLineByLine[i].contains('VALUE "ProductName"')) {
-        contentLineByLine[i] = '            VALUE "ProductName", "$appName" "\\0"';
+        contentLineByLine[i] =
+            '            VALUE "InternalName", "$appName" "\\0"';
+      } else if (contentLineByLine[i].contains('VALUE "FileDescription"')) {
+        contentLineByLine[i] =
+            '            VALUE "FileDescription", "$appName" "\\0"';
+      } else if (contentLineByLine[i].contains('VALUE "ProductName"')) {
+        contentLineByLine[i] =
+            '            VALUE "ProductName", "$appName" "\\0"';
       }
     }
     await writeFile(
