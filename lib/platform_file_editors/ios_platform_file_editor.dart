@@ -40,8 +40,7 @@ class IosPlatformFileEditor extends AbstractPlatformFileEditor {
     );
     for (var i = 0; i < contentLineByLine.length; i++) {
       if (contentLineByLine[i]?.contains('<key>CFBundleName</key>') ?? false) {
-        var match = RegExp(r'<string>(.*?)</string>')
-            .firstMatch(contentLineByLine[i + 1]!);
+        var match = RegExp(r'<string>(.*?)</string>').firstMatch(contentLineByLine[i + 1]!);
         return match?.group(1)?.trim();
       }
     }
@@ -60,8 +59,7 @@ class IosPlatformFileEditor extends AbstractPlatformFileEditor {
     );
     for (var i = 0; i < contentLineByLine.length; i++) {
       final line = contentLineByLine[i];
-      final hasBundleIdentifier =
-          line?.contains(IosPlatformFileEditor._bundleIdentifierKey) ?? false;
+      final hasBundleIdentifier = line?.contains(IosPlatformFileEditor._bundleIdentifierKey) ?? false;
       if (hasBundleIdentifier) {
         return (contentLineByLine[i] as String).split('=').last.trim();
       }
@@ -120,7 +118,17 @@ class IosPlatformFileEditor extends AbstractPlatformFileEditor {
     );
     for (var i = 0; i < contentLineByLine.length; i++) {
       if (contentLineByLine[i].contains('PRODUCT_BUNDLE_IDENTIFIER')) {
-        contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId;';
+        if (contentLineByLine[i].endsWith('.dev')) {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.dev;';
+        } else if (contentLineByLine[i].endsWith('.qa')) {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.qa;';
+        } else if (contentLineByLine[i].endsWith('.uat')) {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.uat;';
+        } else if (contentLineByLine[i].endsWith('.staging')) {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId.staging;';
+        } else {
+          contentLineByLine[i] = '				PRODUCT_BUNDLE_IDENTIFIER = $bundleId;';
+        }
       }
     }
     final message = await super.setBundleId(bundleId: bundleId);
