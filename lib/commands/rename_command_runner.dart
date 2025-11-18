@@ -10,6 +10,8 @@ import 'package:args/command_runner.dart';
 import 'package:rename/enums.dart';
 import 'package:rename/rename.dart';
 
+const customVersion = '3.1.0+1';
+
 /// [RenameCommandRunner] is responsible for running the rename command in the CLI tool.
 /// It extends the CommandRunner class and overrides some of its methods.
 class RenameCommandRunner extends CommandRunner<void> {
@@ -102,6 +104,7 @@ class SetAppNameCommand extends SetPlatformFileEditorCommand {
 
   @override
   FutureOr? run() {
+    print('Rename version: $customVersion');
     final targets = argResults?[RenameOption.targets.name];
     final value = argResults?[RenameOption.value.name];
     if (targets == null || targets.isEmpty) {
@@ -145,6 +148,7 @@ class SetBunleIdCommand extends SetPlatformFileEditorCommand {
 
   @override
   FutureOr? run() {
+    print('Rename version: $customVersion');
     final targets = argResults?[RenameOption.targets.name];
     final value = argResults?[RenameOption.value.name];
     if (targets == null || targets.isEmpty) {
@@ -187,6 +191,7 @@ class GetAppNameCommand extends PlatformFileEditorCommand {
 
   @override
   FutureOr? run() {
+    print('Rename version: $customVersion');
     final targets = argResults?[RenameOption.targets.name];
     if (targets == null || targets.isEmpty) {
       print('No targets specified.');
@@ -223,6 +228,7 @@ class GetBundleIdCommand extends PlatformFileEditorCommand {
 
   @override
   FutureOr? run() {
+    print('Rename version: $customVersion');
     final targets = argResults?[RenameOption.targets.name];
     if (targets == null || targets.isEmpty) {
       print('No targets specified.');
